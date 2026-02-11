@@ -1,26 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>RVX Viewer & Converter</title>
-    <style>
-      body { font-family: monospace; background:#111; color:#9635ff }
-      canvas { border:1px solid #9635ff; image-rendering: pixelated; min-width: 100px; max-width: ; }
-    </style>
-  </head>
-  <body>
-    <h2>RVX Reader</h2>
-    <input type="file" id="rvxFile">
-    <br><br>
-    <canvas id="canvas"></canvas>
-    <button id="downloadPNG">Download PNG</button>
-    <hr>
-    
-    <h2>PNG → RVX Converter</h2>
-    <input type="file" id="pngFile" accept="image/png">
-    <br><br>
-    <button id="convert">Convert to RVX</button>
-    
-    <script src="script.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>RVX Viewer & Converter</title>
+  <style>
+    body { font-family: monospace; background:#111; color:#9635ff }
+    canvas { border:1px solid #9635ff; image-rendering: pixelated; min-width: 100px; max-width: ; }
+  </style>
+</head>
+<body>
+
+<h2>RVX Reader</h2>
+<input type="file" id="rvxFile" accept=".rvx">
+<br><br>
+<canvas id="canvas"></canvas>
+<button id="downloadPNG">Download PNG</button>
+<hr>
+
+<h2>PNG → RVX Converter</h2>
+<input type="file" id="pngFile" accept="image/png">
+<select id="scanMode">
+  <option value="1">All Pixel</option>
+  <option value="2" selected>Range</option>
+</select>
+<br><br>
+<button id="convert">Convert to RVX</button>
+
+<script src="script.js"></script>
+</body>
 </html>
