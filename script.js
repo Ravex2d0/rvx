@@ -176,8 +176,8 @@ document.getElementById("convert").onclick = async () => {
   });
 };
 
-/* ================= PNG → RVX (Promise, return Uint8Array) ================= */
 async function pngToRVX(img, scanMode, creator) {
+  console.log('conversion started...');
   const c = document.createElement("canvas");
   c.width = img.width;
   c.height = img.height;
@@ -199,6 +199,10 @@ async function pngToRVX(img, scanMode, creator) {
   else mode = 3;
 
   const total = d.length / 4;
+
+  if (scanMode === 0) {
+    scanMode = smartDetectScanMode(d, total);
+  }
 
   const header = [];
 
@@ -226,7 +230,6 @@ async function pngToRVX(img, scanMode, creator) {
   // PDAT header
   header.push(...asc("PDAT"));
 
-  // Build pixel data
   const pdatOut = [];
 
   if (scanMode === 1) {
@@ -270,7 +273,6 @@ async function pngToRVX(img, scanMode, creator) {
     compressedData.length & 255
   ];
 
-  // END marker
   const footer = [...asc("END "), 0xF0, 0x9F, 0x97, 0xBF];
 
   const headerArr = new Uint8Array(header);
@@ -281,15 +283,15 @@ async function pngToRVX(img, scanMode, creator) {
   const result = new Uint8Array(totalLength);
 
   let offset = 0;
-  result.set(headerArr, offset);       offset += headerArr.length;
-  result.set(pdatMetaArr, offset);     offset += pdatMetaArr.length;
-  result.set(compressedData, offset);  offset += compressedData.length;
+  result.set(headerArr, offset);      offset += headerArr.length;
+  result.set(pdatMetaArr, offset);    offset += pdatMetaArr.length;
+  result.set(compressedData, offset); offset += compressedData.length;
   result.set(footerArr, offset);
 
   return result;
 }
 
-/* ================= Utils ================= */
+// Utils
 function asc(s) { return [...s].map(c => c.charCodeAt(0)); }
 function str(b, o, l) { return String.fromCharCode(...b.slice(o, o + l)); }
 function makeSegment(isFill, count) {
@@ -311,8 +313,31 @@ async function inflateData(uint8) {
   writer.close();
   return new Uint8Array(await new Response(ds.readable).arrayBuffer());
 }
+function smartDetectScanMode(d, total, sampleSize = 2000) {
+  const step = Math.max(1, Math.floor(total / sampleSize));
+  let sameAsNext = 0;
+  let checked = 0;
 
-/* ================= JSZip Loader ================= */
+  for (let i = 0; i < total - 1; i += step) {
+    const idx = i * 4;
+    const nxt = (i + 1) * 4;
+
+    if (
+      d[idx]   === d[nxt]   &&
+      d[idx+1] === d[nxt+1] &&
+      d[idx+2] === d[nxt+2] &&
+      d[idx+3] === d[nxt+3]
+    ) sameAsNext++;
+
+    checked++;
+  }
+
+  const runRatio = sameAsNext / checked;
+
+  console.log(`[Smart Mode] Run ratio: ${(runRatio * 100).toFixed(1)}% → ScanMode ${runRatio > 0.4 ? 2 : 1}`);
+  return runRatio > 0.4 ? 2 : 1;
+}
+
 function loadJSZip() {
   return new Promise(resolve => {
     const s = document.createElement("script");
