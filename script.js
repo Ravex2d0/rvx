@@ -273,20 +273,16 @@ async function pngToRXI(img, scanMode, creator) {
     compressedData.length & 255
   ];
 
-  const footer = [...asc("END "), 0xF0, 0x9F, 0x97, 0xBF];
-
   const headerArr = new Uint8Array(header);
   const pdatMetaArr = new Uint8Array(pdatMeta);
-  const footerArr = new Uint8Array(footer);
 
-  const totalLength = headerArr.length + pdatMetaArr.length + compressedData.length + footerArr.length;
+  const totalLength = headerArr.length + pdatMetaArr.length + compressedData.length;
   const result = new Uint8Array(totalLength);
 
   let offset = 0;
   result.set(headerArr, offset);      offset += headerArr.length;
   result.set(pdatMetaArr, offset);    offset += pdatMetaArr.length;
   result.set(compressedData, offset); offset += compressedData.length;
-  result.set(footerArr, offset);
 
   return result;
 }
