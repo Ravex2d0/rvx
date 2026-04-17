@@ -186,7 +186,6 @@ async function parseRXI_V1(bytes, pointer, storedCRC, version) {
   ctx.putImageData(img, 0, 0);
   progressBar.value = 100;
 }
-
 async function parseRXI_V2(bytes, pointer, storedCRC, version) {
   const versionStr = `V${version.major}.${version.minor}.${version.patch}`;
   let comment = "N/A";
@@ -395,7 +394,7 @@ async function pngToRXI(img, scanMode, comment) {
   const chPerPx = mode === 1 ? 1 : mode === 2 ? 3 : mode === 3 ? 4 : 2;
 
   if (scanMode === 1) {
-    const rawFlat = buildRawFlat(d, mode, total);
+    const rawFlat = buildRawFlat(data, mode, total);
     const { filterType, filtered } =
     await pickBestFilter(rawFlat, canvas.width, chPerPx);
 
